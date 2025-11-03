@@ -1,3 +1,20 @@
+</style>
+</head>
+<body>
+
+    <!-- 加入這段密碼鎖 -->
+    <script>
+    const PASSWORD = "DLD1109"; // ← 改成你的密碼
+    if (prompt("請輸入活動密碼：") !== PASSWORD) {
+        document.body.innerHTML = "<h1 style='color:white;text-align:center;margin-top:100px;font-family:sans-serif;'>無權限存取此頁面</h1>";
+        throw new Error("Access denied");
+    }
+    </script>
+    <!-- 密碼鎖結束 -->
+
+    <script>
+        // 你的原本 30 人生成程式碼...
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -181,4 +198,5 @@
   </script>
 </body>
 </html>
+
 
