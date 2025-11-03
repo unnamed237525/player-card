@@ -78,13 +78,38 @@
       background: rgba(255,255,255,0.9);
       box-sizing: border-box;
     }
+
+    /* 關鍵修正：textarea 樣式 */
     textarea {
-      resize: vertical;
+      resize: none !important;          /* 禁止拉伸 */
       line-height: 1.5;
+      min-height: 70px;                 /* 最小高度 */
+      max-height: 300px;                /* 最大高度 */
+      overflow-y: auto;                 /* 超高出現滾動條 */
+      height: auto;                     /* 讓 JS 控制高度 */
     }
-    .large { height: 180px; }
-    .medium { height: 110px; }
-    .small { height: 70px; }
+
+    /* 初始高度（內容少時） */
+    .large   { min-height: 180px; }
+    .medium  { min-height: 110px; }
+    .small   { min-height: 70px;  }
+
+    /* 美化滾動條 */
+    textarea::-webkit-scrollbar {
+      width: 8px;
+    }
+    textarea::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.1);
+      border-radius: 4px;
+    }
+    textarea::-webkit-scrollbar-thumb {
+      background: #A80000;
+      border-radius: 4px;
+    }
+    textarea::-webkit-scrollbar-thumb:hover {
+      background: #8B0000;
+    }
+
     .page-number {
       text-align: center;
       color: #666;
@@ -96,14 +121,15 @@
       .card { background: white; box-shadow: none; page-break-inside: avoid; }
       .card::before { border: 2px dashed #A80000; }
       .page { page-break-after: always; }
+      textarea { height: auto !important; overflow: visible; }
     }
   </style>
 </head>
 <body>
 
-  <!-- 密碼鎖：放在最前面，確保先執行 -->
+  <!-- 密碼鎖 -->
   <script>
-    const PASSWORD = "DLD1109"; // 你的密碼
+    const PASSWORD = "DLD1109";
     if (prompt("請輸入活動密碼：") !== PASSWORD) {
       document.body.innerHTML = "<h1 style='color:white;text-align:center;margin-top:100px;font-family:sans-serif;'>無權限存取此頁面</h1>";
       throw new Error("Access denied");
@@ -162,23 +188,42 @@
 
       container.innerHTML = html;
 
-      // 即時同步邏輯
+      // 自動調整 textarea 高度
+      function adjustTextareaHeight(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      }
+
+      // 即時同步 + 高度調整
       const fields = ["nickname", "attribute", "preferred", "taboo", "wish"];
       for (let i = 1; i <= 30; i++) {
         fields.forEach(field => {
           const el = document.getElementById(`${field}${i}`);
           const ref = db.ref(`players/${i}/${field}`);
 
+          // 輸入時同步 + 調整高度
           el.addEventListener("input", e => {
             ref.set(e.target.value);
+            if (e.target.tagName === 'TEXTAREA') {
+              adjustTextareaHeight(e.target);
+            }
           });
 
+          // Firebase 回傳時調整高度
           ref.on("value", snap => {
             const val = snap.val();
             if (val !== null && val !== el.value) {
               el.value = val;
+              if (el.tagName === 'TEXTAREA') {
+                adjustTextareaHeight(el);
+              }
             }
           });
+
+          // 初始調整高度
+          if (el.tagName === 'TEXTAREA') {
+            adjustTextareaHeight(el);
+          }
         });
       }
     });
