@@ -9,7 +9,7 @@
     body {
       background-color: #222222;
       color: #ffffff;
-      font-family: '’Noto Sans TC’, sans-serif;
+      font-family: 'Noto Sans TC', sans-serif;
       margin: 0;
       padding: 20px;
       background-image:
@@ -122,17 +122,17 @@
 </head>
 <body>
 
-  <!-- 密碼鎖：修正「取消也能進」問題 -->
+  <!-- 完全防呆密碼鎖 -->
   <script>
     const PASSWORD = "DLD1109";
     const input = prompt("請輸入活動密碼：");
 
-    if (input !== PASSWORD) {
+    if (!input || input.trim() !== PASSWORD) {
       document.body.innerHTML = `
-        <h1 style='color:#A80000;text-align:center;margin-top:100px;font-family:sans-serif;'>
-          無權限存取此頁面
-        </h1>`;
-      document.body.style.background = "#111";
+        <div style="color:#fff;background:#111;height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:'Noto Sans TC',sans-serif;">
+          <h1 style="color:#A80000;margin:0;font-size:28px;">無權限存取此頁面</h1>
+          <p style="color:#ccc;margin-top:15px;font-size:16px;">請輸入正確密碼</p>
+        </div>`;
       throw new Error("Access denied");
     }
   </script>
