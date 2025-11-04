@@ -120,17 +120,17 @@
 </head>
 <body>
 
-  <!-- 100%防取消密碼鎖：每次都要輸入，取消就封鎖 -->
+  <!-- 100%防取消密碼鎖：按取消就封鎖畫面 -->
   <script>
     const PASSWORD = "DLD1109";
     const KEY = "dld1109_access";
 
-    // 每次開網頁都強制清除驗證（防快取跳過）
+    // 每次開網頁都強制重新驗證
     localStorage.removeItem(KEY);
 
     // 建立封鎖畫面
-    const block = document.createElement('div');
-    block.innerHTML = `
+    const blockScreen = document.createElement('div');
+    blockScreen.innerHTML = `
       <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#111;
                   display:flex;flex-direction:column;justify-content:center;align-items:center;
                   color:#fff;font-family:'Noto Sans TC',sans-serif;z-index:99999;">
@@ -139,21 +139,20 @@
         <p style="color:#666;font-size:14px;">（網址資訊請勿傳給其他人檢閱）</p>
       </div>`;
 
-    // 密碼驗證
     function askPassword() {
-      const input = prompt("【活動密碼】\n請輸入完整密碼後按「確定」\n\n網址資訊請勿傳給其他人檢閱");
+      const input = prompt("【活動密碼】\n請輸入完整密碼後按「確定」\n網址資訊請勿傳給其他人檢閱");
 
       if (input === null) { // 按取消
-        document.body.appendChild(block);
+        document.body.appendChild(blockScreen);
         return false;
       }
-      if (input.trim() === PASSWORD) { // 正確
+      if (input.trim() === PASSWORD) {
         localStorage.setItem(KEY, "ok");
-        alert("密碼正確！歡迎進入玩家登錄卡");
+        alert("密碼正確！歡迎進入");
         return true;
       }
       alert("密碼錯誤！請重新輸入");
-      return askPassword(); // 錯誤就再問
+      return askPassword();
     }
 
     // 每次都要驗證
@@ -163,9 +162,9 @@
       }
     }
 
-    // 清除舊封鎖畫面
-    const oldBlock = document.querySelector('div[style*="z-index:99999"]');
-    if (oldBlock) oldBlock.remove();
+    // 清除舊封鎖
+    const old = document.querySelector('div[style*="z-index:99999"]');
+    if (old) old.remove();
   </script>
 
   <!-- Firebase SDK -->
@@ -173,7 +172,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
 
   <script>
-    // Firebase 設定
     const firebaseConfig = {
       apiKey: "AIzaSyCU9d7iJPMEqS67YRmImykqDPaPz6Wgnbs",
       authDomain: "player-card-bce1c.firebaseapp.com",
@@ -202,16 +200,12 @@
             <h1>玩家登錄卡 - 玩家${i}</h1>
             <label for="nickname${i}">暱稱</label>
             <input type="text" id="nickname${i}" placeholder="輸入暱稱">
-
             <label for="attribute${i}">性別與當日屬性</label>
             <input type="text" id="attribute${i}" placeholder="例如：男/主動方 或 女/被動方">
-
             <h2>喜好的項目、玩法</h2>
             <textarea class="large" id="preferred${i}" placeholder="盡量詳細描述喜好的項目與玩法...\n\n例如：\nSP．TK．綑綁拘束．巴掌．電擊．強制高潮．肛調．口交．戴套性交\n重度SP可以留瘀青．僅限道具插入下體等等"></textarea>
-
             <h2>禁忌的項目</h2>
             <textarea class="medium" id="taboo${i}" placeholder="列出禁忌的項目..."></textarea>
-
             <h2>想跟大家說什麼或是許願</h2>
             <textarea class="small" id="wish${i}" placeholder="分享訊息或許願..."></textarea>
           </div>`;
@@ -220,13 +214,11 @@
 
       container.innerHTML = html;
 
-      // 自動調整 textarea 高度
       function adjustTextareaHeight(textarea) {
         textarea.style.height = 'auto';
         textarea.style.height = textarea.scrollHeight + 'px';
       }
 
-      // 即時同步 + 高度調整
       const fields = ["nickname", "attribute", "preferred", "taboo", "wish"];
       for (let i = 1; i <= 30; i++) {
         fields.forEach(field => {
