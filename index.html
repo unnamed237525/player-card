@@ -120,7 +120,7 @@
 </head>
 <body>
 
-  <!-- 100%防取消密碼鎖：按取消就封鎖畫面 -->
+  <!-- 🔒 密碼驗證 -->
   <script>
     const PASSWORD = "DLD1109";
     const KEY = "dld1109_access";
@@ -128,43 +128,31 @@
     // 每次開網頁都強制重新驗證
     localStorage.removeItem(KEY);
 
-    // 建立封鎖畫面
-    const blockScreen = document.createElement('div');
-    blockScreen.innerHTML = `
-      <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#111;
-                  display:flex;flex-direction:column;justify-content:center;align-items:center;
-                  color:#fff;font-family:'Noto Sans TC',sans-serif;z-index:99999;">
-        <h1 style="color:#A80000;margin:0;font-size:28px;">無權限存取此頁面</h1>
-        <p style="color:#ccc;margin:10px 0;font-size:16px;">請輸入正確密碼</p>
-        <p style="color:#666;font-size:14px;">（網址資訊請勿傳給其他人檢閱）</p>
-      </div>`;
-
     function askPassword() {
       const input = prompt("【活動密碼】\n請輸入完整密碼後按「確定」\n網址資訊請勿傳給其他人檢閱");
 
-      if (input === null) { // 按取消
-        document.body.appendChild(blockScreen);
-        return false;
+      if (input === null) {
+        // 使用者按「取消」→ 重新再問一次
+        alert("請輸入密碼才能進入此頁面。");
+        return askPassword();
       }
+
       if (input.trim() === PASSWORD) {
         localStorage.setItem(KEY, "ok");
         alert("密碼正確！歡迎進入");
         return true;
+      } else {
+        alert("密碼錯誤！請重新輸入");
+        return askPassword();
       }
-      alert("密碼錯誤！請重新輸入");
-      return askPassword();
     }
 
-    // 每次都要驗證
+    // 若無通過驗證就要求輸入
     if (localStorage.getItem(KEY) !== "ok") {
       if (!askPassword()) {
-        throw new Error("Access denied"); // 停止所有程式
+        throw new Error("Access denied");
       }
     }
-
-    // 清除舊封鎖
-    const old = document.querySelector('div[style*="z-index:99999"]');
-    if (old) old.remove();
   </script>
 
   <!-- Firebase SDK -->
