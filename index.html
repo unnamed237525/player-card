@@ -7,117 +7,96 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     body {
-      background-color: #222;
+      background-color: #111;
       color: #fff;
       font-family: 'Noto Sans TC', sans-serif;
       margin: 0;
-      padding: 20px;
-      background-image:
-        radial-gradient(circle at 0px 20px, #444 1px, transparent 1px),
-        radial-gradient(circle at 10px 30px, #444 1px, transparent 1px);
-      background-size: 20px 20px;
-      background-position: 0 0, 10px 10px;
+      padding: 40px;
     }
 
-    /* 🔒 密碼輸入畫面樣式 */
-    .lock-screen {
+    /* 🔒 密碼遮罩層 */
+    #lockScreen {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #111;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.95);
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
-      z-index: 99999;
-      transition: opacity 0.4s ease;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease;
     }
-    .hidden {
+    #lockScreen.hidden {
       opacity: 0;
       pointer-events: none;
     }
 
-    .lock-box {
-      background: rgba(255, 255, 255, 0.08);
-      padding: 30px 25px;
-      border-radius: 10px;
+    #lockScreen h2 {
+      color: #fff;
+      margin-bottom: 20px;
       text-align: center;
-      max-width: 320px;
-      width: 90%;
-      box-shadow: 0 0 15px rgba(255, 0, 0, 0.35);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .lock-box h1 {
-      color: #A80000;
-      margin-bottom: 10px;
       font-family: 'Cinzel', serif;
     }
-    .lock-box p {
-      color: #ccc;
-      font-size: 14px;
-      margin-bottom: 20px;
-      line-height: 1.5;
-    }
-    .lock-box input {
-      width: 100%;
-      padding: 10px;
+    #lockScreen input {
+      font-size: 20px;
+      padding: 8px 14px;
+      margin: 8px;
+      border-radius: 6px;
       border: 1px solid #A80000;
-      border-radius: 6px;
       text-align: center;
-      font-size: 16px;
-      outline: none;
-      margin-bottom: 12px;
-      box-sizing: border-box;
+      background: #000;
+      color: #fff;
     }
-    .lock-box button {
-      width: 100%;
-      background: #A80000;
-      color: white;
+    #lockScreen button {
+      font-size: 18px;
+      padding: 8px 16px;
       border: none;
+      background: #A80000;
+      color: #fff;
       border-radius: 6px;
-      padding: 10px;
-      font-size: 15px;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.3s;
     }
-    .lock-box button:hover {
+    #lockScreen button:hover {
       background: #8B0000;
     }
-    .error-msg {
-      color: #ff6666;
+
+    #errorMsg {
+      color: red;
       margin-top: 10px;
-      font-size: 14px;
-      height: 18px;
     }
 
-    /* 主要頁面樣式 */
+    /* 📄 頁面配置 */
+    .page-number {
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      margin: 20px 0 10px 0;
+      position: relative;
+      z-index: 0;
+      pointer-events: none;
+    }
+
     .page {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-around;
       margin-bottom: 40px;
-      page-break-after: always;
-    }
-    .card {
-      width: 45%;
-      background: rgba(248, 248, 248, 0.95);
-      color: #000;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       position: relative;
-      min-height: 680px;
+      z-index: 1;
     }
-    .card::before {
-      content: '';
-      position: absolute;
-      top: -2px; left: -2px; right: -2px; bottom: -2px;
-      border: 2px dashed #A80000;
-      border-radius: 8px;
+
+    /* 🧾 卡片樣式 */
+    .card {
+      background: #222;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.1);
+      padding: 20px;
+      width: 45%;
+      margin: 10px;
+      color: #fff;
+      position: relative;
+      z-index: 10;
     }
 
     h1 {
@@ -125,62 +104,57 @@
       color: #A80000;
       font-family: 'Cinzel', serif;
       font-size: 22px;
-      margin: 0 0 12px 0;
-      text-shadow: 1px 1px 2px #000;
+      margin: 0 0 16px 0;
     }
+
     h2 {
-      color: #A80000;
-      font-family: 'Cinzel', serif;
+      text-align: center;
+      color: #fff;
       font-size: 16px;
-      border-bottom: 1px solid #222;
+      border-bottom: 1px solid #555;
       padding-bottom: 4px;
-      margin: 18px 0 8px 0;
+      margin: 20px 0 10px 0;
     }
+
     label {
       display: block;
-      color: #222;
-      font-weight: bold;
       margin-top: 10px;
+      color: #ccc;
       font-size: 14px;
     }
+
     input[type="text"], textarea {
       width: 100%;
-      padding: 8px;
-      border: 1px solid #A80000;
-      border-radius: 4px;
-      background: rgba(255,255,255,0.9);
-      box-sizing: border-box;
+      background: #000;
+      color: #fff;
+      border: 1px solid #555;
+      border-radius: 6px;
+      padding: 6px;
+      margin-top: 4px;
       font-family: 'Noto Sans TC', sans-serif;
-    }
-    textarea {
-      resize: none !important;
-      line-height: 1.5;
-      min-height: 70px;
-      max-height: 300px;
-      overflow-y: auto;
+      box-sizing: border-box;
+      resize: none;
     }
 
-    .large { min-height: 180px; }
-    .medium { min-height: 110px; }
-    .small { min-height: 70px; }
+    textarea.large { min-height: 160px; }
+    textarea.medium { min-height: 100px; }
+    textarea.small { min-height: 70px; }
 
     @media print {
-      body { background: white; padding: 10px; }
-      .card { background: white; box-shadow: none; page-break-inside: avoid; }
+      body { background: white; color: black; }
+      .card { background: white; color: black; box-shadow: none; }
     }
+
   </style>
 </head>
 <body>
 
-  <!-- 🔒 密碼輸入畫面 -->
-  <div id="lockScreen" class="lock-screen">
-    <div class="lock-box">
-      <h1>請輸入密碼</h1>
-      <p>【活動密碼】僅限參與者使用<br>請勿將網址分享給他人</p>
-      <input type="password" id="passwordInput" placeholder="輸入密碼" />
-      <button id="submitPassword">確認進入</button>
-      <div class="error-msg" id="errorMsg"></div>
-    </div>
+  <!-- 🔒 密碼輸入層 -->
+  <div id="lockScreen">
+    <h2>請輸入進入密碼</h2>
+    <input type="password" id="passwordInput" placeholder="輸入密碼">
+    <button id="submitPassword">解鎖</button>
+    <p id="errorMsg"></p>
   </div>
 
   <!-- Firebase SDK -->
@@ -210,7 +184,7 @@
     const submitBtn = document.getElementById("submitPassword");
     const errorMsg = document.getElementById("errorMsg");
 
-    // 🔐 每次開啟都強制重新驗證
+    // 預設強制重新驗證
     localStorage.removeItem(SESSION_KEY);
 
     submitBtn.addEventListener("click", tryLogin);
@@ -223,10 +197,10 @@
       if (val === PASSWORD) {
         localStorage.setItem(SESSION_KEY, "ok");
         lockScreen.classList.add("hidden");
-        setTimeout(() => lockScreen.remove(), 500);
+        setTimeout(() => lockScreen.remove(), 600);
         initMain();
       } else {
-        errorMsg.textContent = "密碼錯誤，請再試一次";
+        errorMsg.textContent = "密碼錯誤，請重新輸入。";
       }
     }
 
@@ -243,6 +217,7 @@
         html += `
           <div class="card">
             <h1>玩家登錄卡 - 玩家${i}</h1>
+
             <label for="nickname${i}">暱稱</label>
             <input type="text" id="nickname${i}" placeholder="輸入暱稱">
 
@@ -257,7 +232,9 @@
 
             <h2>想跟大家說什麼或是許願</h2>
             <textarea class="small" id="wish${i}" placeholder="分享訊息或許願..."></textarea>
-          </div>`;
+          </div>
+        `;
+
         if (i % 2 === 0 || i === 30) html += `</div>`;
       }
       container.innerHTML = html;
@@ -290,8 +267,6 @@
         });
       }
     }
-
-    // 預設載入時不顯示主頁，等密碼正確後才執行 initMain()
   </script>
 </body>
 </html>
