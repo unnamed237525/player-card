@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>玩家登錄卡 - Firebase 即時同步版</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       background-color: #222;
@@ -18,88 +18,15 @@
       background-size: 20px 20px;
       background-position: 0 0, 10px 10px;
     }
-
-    /* 🔒 密碼輸入畫面樣式 */
-    .lock-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #111;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 99999;
-      transition: opacity 0.5s;
-    }
-
-    .lock-box {
-      background: rgba(255, 255, 255, 0.1);
-      padding: 30px;
-      border-radius: 10px;
-      text-align: center;
-      max-width: 320px;
-      box-shadow: 0 0 12px rgba(255, 0, 0, 0.3);
-    }
-
-    .lock-box h1 {
-      color: #A80000;
-      margin-bottom: 10px;
-      font-family: 'Cinzel', serif;
-    }
-
-    .lock-box p {
-      color: #ccc;
-      font-size: 14px;
-      margin-bottom: 15px;
-    }
-
-    .lock-box input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #A80000;
-      border-radius: 6px;
-      text-align: center;
-      font-size: 16px;
-      outline: none;
-      margin-bottom: 10px;
-    }
-
-    .lock-box button {
-      background: #A80000;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 20px;
-      font-size: 15px;
-      cursor: pointer;
-      width: 100%;
-    }
-
-    .lock-box button:hover {
-      background: #8B0000;
-    }
-
-    .error-msg {
-      color: #ff6666;
-      margin-top: 8px;
-      font-size: 14px;
-      height: 18px;
-    }
-
-    /* 主要頁面樣式 */
     .page {
       display: flex;
       justify-content: space-around;
       margin-bottom: 40px;
       page-break-after: always;
     }
-
     .card {
       width: 45%;
-      background: rgba(248, 248, 248, 0.95);
+      background: rgba(248,248,248,0.95);
       color: #000;
       padding: 20px;
       border-radius: 8px;
@@ -107,15 +34,14 @@
       position: relative;
       min-height: 680px;
     }
-
     .card::before {
       content: '';
       position: absolute;
       top: -2px; left: -2px; right: -2px; bottom: -2px;
       border: 2px dashed #A80000;
       border-radius: 8px;
+      z-index: -1;
     }
-
     h1 {
       text-align: center;
       color: #A80000;
@@ -124,7 +50,6 @@
       margin: 0 0 12px 0;
       text-shadow: 1px 1px 2px #000;
     }
-
     h2 {
       color: #A80000;
       font-family: 'Cinzel', serif;
@@ -133,7 +58,6 @@
       padding-bottom: 4px;
       margin: 18px 0 8px 0;
     }
-
     label {
       display: block;
       color: #222;
@@ -141,83 +65,155 @@
       margin-top: 10px;
       font-size: 14px;
     }
-
     input[type="text"], textarea {
       width: 100%;
       padding: 8px;
       border: 1px solid #A80000;
       border-radius: 4px;
+      font-family: 'Noto Sans TC', sans-serif;
       background: rgba(255,255,255,0.9);
       box-sizing: border-box;
-      font-family: 'Noto Sans TC', sans-serif;
     }
-
     textarea {
       resize: none !important;
       line-height: 1.5;
       min-height: 70px;
       max-height: 300px;
       overflow-y: auto;
+      height: auto;
     }
-
     .large { min-height: 180px; }
     .medium { min-height: 110px; }
     .small { min-height: 70px; }
 
+    textarea::-webkit-scrollbar { width: 8px; }
+    textarea::-webkit-scrollbar-thumb { background: #A80000; border-radius: 4px; }
+    textarea::-webkit-scrollbar-thumb:hover { background: #8B0000; }
+
+    .page-number {
+      text-align: center;
+      color: #666;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
     @media print {
       body { background: white; padding: 10px; }
       .card { background: white; box-shadow: none; page-break-inside: avoid; }
+      .card::before { border: 2px dashed #A80000; }
+      .page { page-break-after: always; }
+      textarea { height: auto !important; overflow: visible; }
+    }
+
+    /* 密碼輸入畫面 */
+    .lock-screen {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: #111;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 99999;
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    .lock-box {
+      background: #222;
+      padding: 30px 25px;
+      border: 2px solid #A80000;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(168,0,0,0.6);
+      text-align: center;
+      width: 90%;
+      max-width: 320px;
+    }
+    .lock-box h1 {
+      margin: 0 0 10px 0;
+      color: #A80000;
+      font-size: 22px;
+    }
+    .lock-box input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #A80000;
+      border-radius: 4px;
+      outline: none;
+      margin-top: 10px;
+      background: #fff;
+      color: #000;
+      box-sizing: border-box;
+      display: block;
+    }
+    .lock-box button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 12px;
+      background: #A80000;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      box-sizing: border-box;
+      display: block;
+    }
+    .lock-box button:hover {
+      background: #8B0000;
+    }
+    .error-msg {
+      color: #ff8080;
+      margin-top: 8px;
+      font-size: 14px;
+      min-height: 20px;
     }
   </style>
 </head>
 <body>
 
-  <!-- 🔒 密碼輸入畫面 -->
-  <div id="lockScreen" class="lock-screen">
-    <div class="lock-box">
-      <h1>請輸入密碼</h1>
-      <p>【活動密碼】僅限參與者使用<br>請勿將網址分享給他人</p>
-      <input type="password" id="passwordInput" placeholder="輸入密碼" />
-      <button id="submitPassword">確認進入</button>
-      <div class="error-msg" id="errorMsg"></div>
-    </div>
-  </div>
+  <!-- 密碼登入檢查 -->
+  <script>
+    const SESSION_KEY = "session_access";
+    const PASSWORD = "DLD1109";
+
+    if (sessionStorage.getItem(SESSION_KEY) !== "ok") {
+      document.write(`
+        <div class="lock-screen">
+          <div class="lock-box">
+            <h1>請輸入密碼</h1>
+            <p style="font-size:14px;color:#ccc;">【活動密碼】僅限參與者使用<br>請勿將網址分享給他人</p>
+            <input type="password" id="passwordInput" placeholder="輸入密碼">
+            <button id="submitPassword">確認進入</button>
+            <div class="error-msg" id="errorMsg"></div>
+          </div>
+        </div>
+        <script>
+          const input = document.getElementById("passwordInput");
+          const btn = document.getElementById("submitPassword");
+          const err = document.getElementById("errorMsg");
+          btn.addEventListener("click", () => {
+            if (input.value.trim() === "${PASSWORD}") {
+              sessionStorage.setItem("${SESSION_KEY}", "ok");
+              location.reload();
+            } else {
+              err.textContent = "密碼錯誤，請再試一次。";
+              input.value = "";
+            }
+          });
+          input.addEventListener("keypress", e => {
+            if (e.key === "Enter") btn.click();
+          });
+        <\/script>
+      `);
+      throw new Error("未登入，不載入主程式");
+    }
+  </script>
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
 
   <script>
-    const PASSWORD = "DLD1109";
-    const SESSION_KEY = "session_access";
-
-    // ✅ 改用 sessionStorage：重新整理或關閉後會自動登出
-    if (sessionStorage.getItem(SESSION_KEY) === "ok") {
-      document.getElementById("lockScreen").style.display = "none";
-    }
-
-    const passwordInput = document.getElementById("passwordInput");
-    const submitBtn = document.getElementById("submitPassword");
-    const errorMsg = document.getElementById("errorMsg");
-    const lockScreen = document.getElementById("lockScreen");
-
-    submitBtn.addEventListener("click", () => {
-      const input = passwordInput.value.trim();
-      if (input === PASSWORD) {
-        sessionStorage.setItem(SESSION_KEY, "ok");
-        lockScreen.style.opacity = 0;
-        setTimeout(() => lockScreen.style.display = "none", 500);
-      } else {
-        errorMsg.textContent = "密碼錯誤，請再試一次。";
-        passwordInput.value = "";
-      }
-    });
-
-    passwordInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") submitBtn.click();
-    });
-
-    // ✅ 初始化 Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCU9d7iJPMEqS67YRmImykqDPaPz6Wgnbs",
       authDomain: "player-card-bce1c.firebaseapp.com",
@@ -231,15 +227,13 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // ✅ 載入資料卡內容
     document.addEventListener("DOMContentLoaded", function() {
       const container = document.body;
       let html = '';
 
       for (let i = 1; i <= 30; i++) {
         const page = Math.ceil(i / 2);
-        const isFirstInPage = i % 2 === 1;
-        if (isFirstInPage) html += `<div class="page-number">第 ${page} 頁</div><div class="page">`;
+        if (i % 2 === 1) html += `<div class="page-number">第 ${page} 頁</div><div class="page">`;
 
         html += `
           <div class="card">
@@ -249,16 +243,16 @@
             <label for="attribute${i}">性別與當日屬性</label>
             <input type="text" id="attribute${i}" placeholder="例如：男/主動方 或 女/被動方">
             <h2>喜好的項目、玩法</h2>
-            <textarea class="large" id="preferred${i}" placeholder="描述喜好項目..."></textarea>
+            <textarea class="large" id="preferred${i}" placeholder="盡量詳細描述喜好的項目與玩法..."></textarea>
             <h2>禁忌的項目</h2>
-            <textarea class="medium" id="taboo${i}" placeholder="列出禁忌..."></textarea>
+            <textarea class="medium" id="taboo${i}" placeholder="列出禁忌的項目..."></textarea>
             <h2>想跟大家說什麼或是許願</h2>
             <textarea class="small" id="wish${i}" placeholder="分享訊息或許願..."></textarea>
           </div>`;
         if (i % 2 === 0 || i === 30) html += `</div>`;
       }
 
-      container.insertAdjacentHTML('beforeend', html);
+      container.innerHTML = html;
 
       function adjustTextareaHeight(textarea) {
         textarea.style.height = 'auto';
@@ -289,5 +283,6 @@
       }
     });
   </script>
+
 </body>
 </html>
