@@ -9,10 +9,10 @@
     body {
       background-color: #222222;
       color: #ffffff;
-      font-family: 'Noto Sans TC', sans-serif;
+      font-family: '’Noto Sans TC’, sans-serif;
       margin: 0;
       padding: 20px;
-      background-image: 
+      background-image:
         radial-gradient(circle at 0px 20px, #444 1px, transparent 1px),
         radial-gradient(circle at 10px 30px, #444 1px, transparent 1px);
       background-size: 20px 20px;
@@ -40,7 +40,7 @@
       top: -2px; left: -2px; right: -2px; bottom: -2px;
       border: 2px dashed #A80000;
       border-radius: 8px;
-      box-shadow: 
+      box-shadow:
         inset 0 -1px 0 0 #A80000, inset 0 1px 0 0 #A80000,
         0 1px 0 0 #A80000, 0 -1px 0 0 #A80000,
         -1px 0 0 0 #A80000, 1px 0 0 0 #A80000;
@@ -78,22 +78,18 @@
       background: rgba(255,255,255,0.9);
       box-sizing: border-box;
     }
-
     /* 關鍵修正：textarea 樣式 */
     textarea {
-      resize: none !important;          /* 禁止拉伸 */
+      resize: none !important;
       line-height: 1.5;
-      min-height: 70px;                 /* 最小高度 */
-      max-height: 300px;                /* 最大高度 */
-      overflow-y: auto;                 /* 超高出現滾動條 */
-      height: auto;                     /* 讓 JS 控制高度 */
+      min-height: 70px;
+      max-height: 300px;
+      overflow-y: auto;
+      height: auto;
     }
-
-    /* 初始高度（內容少時） */
     .large   { min-height: 180px; }
     .medium  { min-height: 110px; }
     .small   { min-height: 70px;  }
-
     /* 美化滾動條 */
     textarea::-webkit-scrollbar {
       width: 8px;
@@ -109,7 +105,6 @@
     textarea::-webkit-scrollbar-thumb:hover {
       background: #8B0000;
     }
-
     .page-number {
       text-align: center;
       color: #666;
@@ -127,11 +122,17 @@
 </head>
 <body>
 
-  <!-- 密碼鎖 -->
+  <!-- 密碼鎖：修正「取消也能進」問題 -->
   <script>
     const PASSWORD = "DLD1109";
-    if (prompt("請輸入活動密碼：") !== PASSWORD) {
-      document.body.innerHTML = "<h1 style='color:white;text-align:center;margin-top:100px;font-family:sans-serif;'>無權限存取此頁面</h1>";
+    const input = prompt("請輸入活動密碼：");
+
+    if (input !== PASSWORD) {
+      document.body.innerHTML = `
+        <h1 style='color:#A80000;text-align:center;margin-top:100px;font-family:sans-serif;'>
+          無權限存取此頁面
+        </h1>`;
+      document.body.style.background = "#111";
       throw new Error("Access denied");
     }
   </script>
@@ -201,7 +202,6 @@
           const el = document.getElementById(`${field}${i}`);
           const ref = db.ref(`players/${i}/${field}`);
 
-          // 輸入時同步 + 調整高度
           el.addEventListener("input", e => {
             ref.set(e.target.value);
             if (e.target.tagName === 'TEXTAREA') {
@@ -209,7 +209,6 @@
             }
           });
 
-          // Firebase 回傳時調整高度
           ref.on("value", snap => {
             const val = snap.val();
             if (val !== null && val !== el.value) {
@@ -220,7 +219,6 @@
             }
           });
 
-          // 初始調整高度
           if (el.tagName === 'TEXTAREA') {
             adjustTextareaHeight(el);
           }
