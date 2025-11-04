@@ -125,11 +125,11 @@
     const PASSWORD = "DLD1109";
 
     while (true) {
-      const input = prompt("【活動密碼】\n請輸入完整密碼後按「確定」\n\n提示：DLD + 4 位數字");
+      const input = prompt("【活動密碼】\n請輸入密碼後按「確定」\n網址資訊請勿傳給其他人檢閱);
 
       // 按取消
       if (input === null) {
-        alert("已取消，頁面即將關閉");
+        alert("已取消，頁面即將關閉，請重新點擊網址");
         window.location.href = "about:blank";
         throw new Error("User cancelled");
       }
@@ -240,3 +240,4 @@
 
 </body>
 </html>
+
