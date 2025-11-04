@@ -86,9 +86,9 @@
       overflow-y: auto;
       height: auto;
     }
-    .large   { min-height: 180px; }
-    .medium  { min-height: 110px; }
-    .small   { min-height: 70px;  }
+    .large { min-height: 180px; }
+    .medium { min-height: 110px; }
+    .small { min-height: 70px; }
     textarea::-webkit-scrollbar { width: 8px; }
     textarea::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
     textarea::-webkit-scrollbar-thumb { background: #A80000; border-radius: 4px; }
@@ -109,15 +109,11 @@
   </style>
 </head>
 <body>
-
   <div id="content"></div>
-
   <script>
     const PASSWORD = "DLD1109";
     const KEY = "dld1109_access";
-
     localStorage.removeItem(KEY);
-
     const block = document.createElement('div');
     block.innerHTML = `
       <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#111;
@@ -127,7 +123,6 @@
         <p style="color:#ccc;margin:10px 0;font-size:16px;">請輸入正確密碼</p>
         <p style="color:#666;font-size:14px;">（網址請勿外傳）</p>
       </div>`;
-
     function askPassword() {
       const input = prompt("【活動密碼】\n請輸入完整密碼後按「確定」\n\n提示：DLD + 4 位數字");
       if (input === null) { document.body.appendChild(block); return false; }
@@ -139,18 +134,14 @@
       alert("密碼錯誤！請重新輸入");
       return askPassword();
     }
-
     if (localStorage.getItem(KEY) !== "ok") {
       if (!askPassword()) throw new Error("Access denied");
     }
-
     const oldBlock = document.querySelector('div[style*="z-index:99999"]');
     if (oldBlock) oldBlock.remove();
   </script>
-
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyCU9d7iJPMEqS67YRmImykqDPaPz6Wgnbs",
@@ -162,71 +153,56 @@
       appId: "1:1035375584955:web:a71e0af5e7bbd28fd7eb9e",
       measurementId: "G-9685DW4YLZ"
     };
-
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
     document.addEventListener("DOMContentLoaded", function() {
       const container = document.getElementById("content");
       let html = '';
-
       for (let i = 1; i <= 30; i++) {
         const page = Math.ceil(i / 2);
         const isFirstInPage = i % 2 === 1;
         if (isFirstInPage) html += `<div class="page-number">第 ${page} 頁</div><div class="page">`;
-
         html += `
           <div class="card">
             <h1>玩家登錄卡 - 玩家${i}</h1>
             <label for="nickname${i}">暱稱</label>
             <input type="text" id="nickname${i}" placeholder="輸入暱稱">
-
             <label for="attribute${i}">性別與當日屬性</label>
             <input type="text" id="attribute${i}" placeholder="例如：男/主動方 或 女/被動方">
-
             <h2>喜好的項目、玩法</h2>
             <textarea class="large" id="preferred${i}" placeholder="盡量詳細描述喜好的項目與玩法..."></textarea>
-
             <h2>禁忌的項目</h2>
             <textarea class="medium" id="taboo${i}" placeholder="列出禁忌的項目..."></textarea>
-
             <h2>想跟大家說什麼或是許願</h2>
             <textarea class="small" id="wish${i}" placeholder="分享訊息或許願..."></textarea>
           </div>`;
         if (i % 2 === 0 || i === 30) html += `</div>`;
       }
-
       container.innerHTML = html;
-
       function adjustTextareaHeight(textarea) {
         textarea.style.height = 'auto';
         textarea.style.height = textarea.scrollHeight + 'px';
       }
-
       const fields = ["nickname", "attribute", "preferred", "taboo", "wish"];
       for (let i = 1; i <= 30; i++) {
         fields.forEach(field => {
           const el = document.getElementById(`${field}${i}`);
           const ref = db.ref(`players/${i}/${field}`);
-
           el.addEventListener("input", e => {
             ref.set(e.target.value);
             if (e.target.tagName === 'TEXTAREA') adjustTextareaHeight(e.target);
           });
-
           ref.on("value", snap => {
             const val = snap.val();
-            if (val !== null && val !== el.value) {
+            if (val !== null && val !== el.value && !el.matches(':focus')) {
               el.value = val;
               if (el.tagName === 'TEXTAREA') adjustTextareaHeight(el);
             }
           });
-
           if (el.tagName === 'TEXTAREA') adjustTextareaHeight(el);
         });
       }
     });
   </script>
-
 </body>
 </html>
