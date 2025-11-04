@@ -35,6 +35,11 @@
       transition: opacity 0.5s;
     }
 
+    .lock-screen.hidden {
+      opacity: 0;
+      pointer-events: none; /* 🚀 防止遮罩阻擋互動 */
+    }
+
     .lock-box {
       background: rgba(255, 255, 255, 0.08);
       padding: 30px 25px;
@@ -226,10 +231,10 @@
       const input = passwordInput.value.trim();
       if (input === PASSWORD) {
         sessionStorage.setItem(SESSION_KEY, "ok");
-        lockScreen.style.opacity = 0;
+        lockScreen.classList.add("hidden"); // ✅ 淡出並停用互動
         setTimeout(() => {
-          lockScreen.style.display = "none";
-          initCards(); // ✅ 登入後載入卡片
+          lockScreen.remove(); // ✅ 徹底移除避免遮擋
+          initCards(); // 載入卡片
         }, 500);
       } else {
         errorMsg.textContent = "密碼錯誤，請再試一次。";
@@ -239,7 +244,7 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       if (sessionStorage.getItem(SESSION_KEY) === "ok") {
-        lockScreen.style.display = "none";
+        lockScreen.remove();
         initCards();
       }
     });
@@ -248,7 +253,6 @@
     function initCards() {
       let html = "";
       for (let i = 1; i <= 30; i++) {
-        const page = Math.ceil(i / 2);
         if (i % 2 === 1) html += `<div class="page">`;
         html += `
           <div class="card">
