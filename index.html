@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>玩家登錄卡 - Firebase 即時同步版</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
   <style>
@@ -104,12 +104,12 @@
       textarea { height: auto !important; overflow: visible; }
     }
 
-    /* 密碼輸入畫面 */
+    /* 密碼畫面 */
     .lock-screen {
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background: #111;
-      color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -132,21 +132,28 @@
       color: #A80000;
       font-size: 22px;
     }
-    .lock-box input {
+    .lock-box p {
+      font-size: 14px;
+      color: #ccc;
+      margin: 0 0 10px 0;
+    }
+    .lock-box input,
+    .lock-box button {
       width: 100%;
+      box-sizing: border-box;
+      display: block;
+      margin: 0;
+    }
+    .lock-box input {
       padding: 10px;
       font-size: 16px;
       border: 1px solid #A80000;
       border-radius: 4px;
-      outline: none;
-      margin-top: 10px;
       background: #fff;
       color: #000;
-      box-sizing: border-box;
-      display: block;
+      margin-top: 10px;
     }
     .lock-box button {
-      width: 100%;
       padding: 10px;
       margin-top: 12px;
       background: #A80000;
@@ -155,12 +162,8 @@
       color: #fff;
       font-size: 16px;
       cursor: pointer;
-      box-sizing: border-box;
-      display: block;
     }
-    .lock-box button:hover {
-      background: #8B0000;
-    }
+    .lock-box button:hover { background: #8B0000; }
     .error-msg {
       color: #ff8080;
       margin-top: 8px;
@@ -171,118 +174,115 @@
 </head>
 <body>
 
-  <!-- 密碼登入檢查 -->
-  <script>
-    const SESSION_KEY = "session_access";
-    const PASSWORD = "DLD1109";
+<!-- 密碼檢查 -->
+<script>
+  const SESSION_KEY = "session_access";
+  const PASSWORD = "DLD1109";
 
-    if (sessionStorage.getItem(SESSION_KEY) !== "ok") {
-      document.write(`
-        <div class="lock-screen">
-          <div class="lock-box">
-            <h1>請輸入密碼</h1>
-            <p style="font-size:14px;color:#ccc;">【活動密碼】僅限參與者使用<br>請勿將網址分享給他人</p>
-            <input type="password" id="passwordInput" placeholder="輸入密碼">
-            <button id="submitPassword">確認進入</button>
-            <div class="error-msg" id="errorMsg"></div>
-          </div>
+  if (sessionStorage.getItem(SESSION_KEY) !== "ok") {
+    document.body.innerHTML = `
+      <div class="lock-screen">
+        <div class="lock-box">
+          <h1>請輸入密碼</h1>
+          <p>【活動密碼】僅限參與者使用<br>請勿將網址分享給他人</p>
+          <input type="password" id="passwordInput" placeholder="輸入密碼">
+          <button id="submitPassword">確認進入</button>
+          <div class="error-msg" id="errorMsg"></div>
         </div>
-        <script>
-          const input = document.getElementById("passwordInput");
-          const btn = document.getElementById("submitPassword");
-          const err = document.getElementById("errorMsg");
-          btn.addEventListener("click", () => {
-            if (input.value.trim() === "${PASSWORD}") {
-              sessionStorage.setItem("${SESSION_KEY}", "ok");
-              location.reload();
-            } else {
-              err.textContent = "密碼錯誤，請再試一次。";
-              input.value = "";
-            }
-          });
-          input.addEventListener("keypress", e => {
-            if (e.key === "Enter") btn.click();
-          });
-        <\/script>
-      `);
-      throw new Error("未登入，不載入主程式");
-    }
-  </script>
+      </div>`;
+    const input = document.getElementById("passwordInput");
+    const btn = document.getElementById("submitPassword");
+    const err = document.getElementById("errorMsg");
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCU9d7iJPMEqS67YRmImykqDPaPz6Wgnbs",
-      authDomain: "player-card-bce1c.firebaseapp.com",
-      databaseURL: "https://player-card-bce1c-default-rtdb.firebaseio.com",
-      projectId: "player-card-bce1c",
-      storageBucket: "player-card-bce1c.firebasestorage.app",
-      messagingSenderId: "1035375584955",
-      appId: "1:1035375584955:web:a71e0af5e7bbd28fd7eb9e",
-      measurementId: "G-9685DW4YLZ"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    document.addEventListener("DOMContentLoaded", function() {
-      const container = document.body;
-      let html = '';
-
-      for (let i = 1; i <= 30; i++) {
-        const page = Math.ceil(i / 2);
-        if (i % 2 === 1) html += `<div class="page-number">第 ${page} 頁</div><div class="page">`;
-
-        html += `
-          <div class="card">
-            <h1>玩家登錄卡 - 玩家${i}</h1>
-            <label for="nickname${i}">暱稱</label>
-            <input type="text" id="nickname${i}" placeholder="輸入暱稱">
-            <label for="attribute${i}">性別與當日屬性</label>
-            <input type="text" id="attribute${i}" placeholder="例如：男/主動方 或 女/被動方">
-            <h2>喜好的項目、玩法</h2>
-            <textarea class="large" id="preferred${i}" placeholder="盡量詳細描述喜好的項目與玩法..."></textarea>
-            <h2>禁忌的項目</h2>
-            <textarea class="medium" id="taboo${i}" placeholder="列出禁忌的項目..."></textarea>
-            <h2>想跟大家說什麼或是許願</h2>
-            <textarea class="small" id="wish${i}" placeholder="分享訊息或許願..."></textarea>
-          </div>`;
-        if (i % 2 === 0 || i === 30) html += `</div>`;
-      }
-
-      container.innerHTML = html;
-
-      function adjustTextareaHeight(textarea) {
-        textarea.style.height = 'auto';
-        textarea.style.height = textarea.scrollHeight + 'px';
-      }
-
-      const fields = ["nickname", "attribute", "preferred", "taboo", "wish"];
-      for (let i = 1; i <= 30; i++) {
-        fields.forEach(field => {
-          const el = document.getElementById(`${field}${i}`);
-          const ref = db.ref(`players/${i}/${field}`);
-
-          el.addEventListener("input", e => {
-            ref.set(e.target.value);
-            if (e.target.tagName === 'TEXTAREA') adjustTextareaHeight(e.target);
-          });
-
-          ref.on("value", snap => {
-            const val = snap.val();
-            if (val !== null && val !== el.value) {
-              el.value = val;
-              if (el.tagName === 'TEXTAREA') adjustTextareaHeight(el);
-            }
-          });
-
-          if (el.tagName === 'TEXTAREA') adjustTextareaHeight(el);
-        });
+    btn.addEventListener("click", () => {
+      if (input.value.trim() === PASSWORD) {
+        sessionStorage.setItem(SESSION_KEY, "ok");
+        location.reload();
+      } else {
+        err.textContent = "密碼錯誤，請再試一次。";
+        input.value = "";
       }
     });
-  </script>
+    input.addEventListener("keypress", e => {
+      if (e.key === "Enter") btn.click();
+    });
+    throw new Error("未登入，停止載入主程式");
+  }
+</script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCU9d7iJPMEqS67YRmImykqDPaPz6Wgnbs",
+    authDomain: "player-card-bce1c.firebaseapp.com",
+    databaseURL: "https://player-card-bce1c-default-rtdb.firebaseio.com",
+    projectId: "player-card-bce1c",
+    storageBucket: "player-card-bce1c.firebasestorage.app",
+    messagingSenderId: "1035375584955",
+    appId: "1:1035375584955:web:a71e0af5e7bbd28fd7eb9e",
+    measurementId: "G-9685DW4YLZ"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const container = document.body;
+    let html = '';
+
+    for (let i = 1; i <= 30; i++) {
+      const page = Math.ceil(i / 2);
+      if (i % 2 === 1) html += `<div class="page-number">第 ${page} 頁</div><div class="page">`;
+      html += `
+        <div class="card">
+          <h1>玩家登錄卡 - 玩家${i}</h1>
+          <label for="nickname${i}">暱稱</label>
+          <input type="text" id="nickname${i}" placeholder="輸入暱稱">
+          <label for="attribute${i}">性別與當日屬性</label>
+          <input type="text" id="attribute${i}" placeholder="例如：男/主動方 或 女/被動方">
+          <h2>喜好的項目、玩法</h2>
+          <textarea class="large" id="preferred${i}" placeholder="盡量詳細描述喜好的項目與玩法..."></textarea>
+          <h2>禁忌的項目</h2>
+          <textarea class="medium" id="taboo${i}" placeholder="列出禁忌的項目..."></textarea>
+          <h2>想跟大家說什麼或是許願</h2>
+          <textarea class="small" id="wish${i}" placeholder="分享訊息或許願..."></textarea>
+        </div>`;
+      if (i % 2 === 0 || i === 30) html += `</div>`;
+    }
+
+    container.innerHTML = html;
+
+    function adjustTextareaHeight(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    const fields = ["nickname", "attribute", "preferred", "taboo", "wish"];
+    for (let i = 1; i <= 30; i++) {
+      fields.forEach(field => {
+        const el = document.getElementById(`${field}${i}`);
+        const ref = db.ref(`players/${i}/${field}`);
+
+        el.addEventListener("input", e => {
+          ref.set(e.target.value);
+          if (e.target.tagName === 'TEXTAREA') adjustTextareaHeight(e.target);
+        });
+
+        ref.on("value", snap => {
+          const val = snap.val();
+          if (val !== null && val !== el.value) {
+            el.value = val;
+            if (el.tagName === 'TEXTAREA') adjustTextareaHeight(el);
+          }
+        });
+
+        if (el.tagName === 'TEXTAREA') adjustTextareaHeight(el);
+      });
+    }
+  });
+</script>
 
 </body>
 </html>
