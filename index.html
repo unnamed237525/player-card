@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>玩家登錄卡 - Firebase 即時同步版</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     body {
-      background-color: #222222;
-      color: #ffffff;
+      background-color: #222;
+      color: #fff;
       font-family: 'Noto Sans TC', sans-serif;
       margin: 0;
       padding: 20px;
@@ -18,34 +18,111 @@
       background-size: 20px 20px;
       background-position: 0 0, 10px 10px;
     }
+
+    /* 🔒 密碼輸入畫面樣式 */
+    .lock-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #111;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      transition: opacity 0.5s;
+    }
+
+    .lock-box {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 30px 25px;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 320px;
+      width: 90%;
+      box-shadow: 0 0 15px rgba(255, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .lock-box h1 {
+      color: #A80000;
+      margin-bottom: 10px;
+      font-family: 'Cinzel', serif;
+    }
+
+    .lock-box p {
+      color: #ccc;
+      font-size: 14px;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .lock-box input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #A80000;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 16px;
+      outline: none;
+      margin-bottom: 12px;
+      box-sizing: border-box;
+    }
+
+    .lock-box button {
+      width: 100%;
+      background: #A80000;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .lock-box button:hover {
+      background: #8B0000;
+    }
+
+    .error-msg {
+      color: #ff6666;
+      margin-top: 10px;
+      font-size: 14px;
+      height: 18px;
+    }
+
+    /* 主要頁面樣式 */
     .page {
       display: flex;
       justify-content: space-around;
       margin-bottom: 40px;
       page-break-after: always;
     }
+
     .card {
       width: 45%;
       background: rgba(248, 248, 248, 0.95);
-      color: #000000;
+      color: #000;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       position: relative;
       min-height: 680px;
     }
+
     .card::before {
       content: '';
       position: absolute;
       top: -2px; left: -2px; right: -2px; bottom: -2px;
       border: 2px dashed #A80000;
       border-radius: 8px;
-      box-shadow:
-        inset 0 -1px 0 0 #A80000, inset 0 1px 0 0 #A80000,
-        0 1px 0 0 #A80000, 0 -1px 0 0 #A80000,
-        -1px 0 0 0 #A80000, 1px 0 0 0 #A80000;
-      z-index: -1;
     }
+
     h1 {
       text-align: center;
       color: #A80000;
@@ -54,95 +131,73 @@
       margin: 0 0 12px 0;
       text-shadow: 1px 1px 2px #000;
     }
+
     h2 {
       color: #A80000;
       font-family: 'Cinzel', serif;
       font-size: 16px;
-      border-bottom: 1px solid #222222;
+      border-bottom: 1px solid #222;
       padding-bottom: 4px;
       margin: 18px 0 8px 0;
     }
+
     label {
       display: block;
-      color: #222222;
+      color: #222;
       font-weight: bold;
       margin-top: 10px;
       font-size: 14px;
     }
+
     input[type="text"], textarea {
       width: 100%;
       padding: 8px;
       border: 1px solid #A80000;
       border-radius: 4px;
-      font-family: 'Noto Sans TC', sans-serif;
       background: rgba(255,255,255,0.9);
       box-sizing: border-box;
+      font-family: 'Noto Sans TC', sans-serif;
     }
+
     textarea {
       resize: none !important;
       line-height: 1.5;
       min-height: 70px;
       max-height: 300px;
       overflow-y: auto;
-      height: auto;
     }
+
     .large { min-height: 180px; }
     .medium { min-height: 110px; }
     .small { min-height: 70px; }
-    textarea::-webkit-scrollbar { width: 8px; }
-    textarea::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
-    textarea::-webkit-scrollbar-thumb { background: #A80000; border-radius: 4px; }
-    textarea::-webkit-scrollbar-thumb:hover { background: #8B0000; }
-    .page-number {
-      text-align: center;
-      color: #666;
-      font-size: 12px;
-      margin-bottom: 10px;
-    }
+
     @media print {
       body { background: white; padding: 10px; }
       .card { background: white; box-shadow: none; page-break-inside: avoid; }
-      .card::before { border: 2px dashed #A80000; }
-      .page { page-break-after: always; }
-      textarea { height: auto !important; overflow: visible; }
     }
   </style>
 </head>
 <body>
-  <div id="content"></div>
-  <script>
-    const PASSWORD = "DLD1109";
-    const KEY = "dld1109_access";
-    localStorage.removeItem(KEY);
-    const block = document.createElement('div');
-    block.innerHTML = `
-      <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#111;
-                  display:flex;flex-direction:column;justify-content:center;align-items:center;
-                  color:#fff;font-family:'Noto Sans TC',sans-serif;z-index:99999;">
-        <h1 style="color:#A80000;margin:0;font-size:28px;">無權限存取此頁面</h1>
-        <p style="color:#ccc;margin:10px 0;font-size:16px;">請輸入正確密碼</p>
-        <p style="color:#666;font-size:14px;">（網址請勿外傳）</p>
-      </div>`;
-    function askPassword() {
-      const input = prompt("【活動密碼】\n請輸入完整密碼後按「確定」\n\n提示：DLD + 4 位數字");
-      if (input === null) { document.body.appendChild(block); return false; }
-      if (input.trim() === PASSWORD) {
-        localStorage.setItem(KEY, "ok");
-        alert("密碼正確！歡迎進入玩家登錄卡");
-        return true;
-      }
-      alert("密碼錯誤！請重新輸入");
-      return askPassword();
-    }
-    if (localStorage.getItem(KEY) !== "ok") {
-      if (!askPassword()) throw new Error("Access denied");
-    }
-    const oldBlock = document.querySelector('div[style*="z-index:99999"]');
-    if (oldBlock) oldBlock.remove();
-  </script>
+
+  <!-- 🔒 密碼輸入畫面 -->
+  <div id="lockScreen" class="lock-screen">
+    <div class="lock-box">
+      <h1>請輸入密碼</h1>
+      <p>【活動密碼】僅限參與者使用<br>請勿將網址分享給他人</p>
+      <input type="password" id="passwordInput" placeholder="輸入密碼" />
+      <button id="submitPassword">確認進入</button>
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
+
   <script>
+    const PASSWORD = "DLD1109";
+    const SESSION_KEY = "session_access";
+
     const firebaseConfig = {
       apiKey: "AIzaSyCU9d7iJPMEqS67YRmImykqDPaPz6Wgnbs",
       authDomain: "player-card-bce1c.firebaseapp.com",
@@ -153,56 +208,100 @@
       appId: "1:1035375584955:web:a71e0af5e7bbd28fd7eb9e",
       measurementId: "G-9685DW4YLZ"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    document.addEventListener("DOMContentLoaded", function() {
-      const container = document.getElementById("content");
-      let html = '';
+
+    const lockScreen = document.getElementById("lockScreen");
+    const passwordInput = document.getElementById("passwordInput");
+    const submitBtn = document.getElementById("submitPassword");
+    const errorMsg = document.getElementById("errorMsg");
+
+    submitBtn.addEventListener("click", tryLogin);
+    passwordInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") tryLogin();
+    });
+
+    function tryLogin() {
+      const input = passwordInput.value.trim();
+      if (input === PASSWORD) {
+        sessionStorage.setItem(SESSION_KEY, "ok");
+        lockScreen.style.opacity = 0;
+        setTimeout(() => {
+          lockScreen.style.display = "none";
+          initCards(); // ✅ 登入後載入卡片
+        }, 500);
+      } else {
+        errorMsg.textContent = "密碼錯誤，請再試一次。";
+        passwordInput.value = "";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (sessionStorage.getItem(SESSION_KEY) === "ok") {
+        lockScreen.style.display = "none";
+        initCards();
+      }
+    });
+
+    // ✅ 建立卡片內容 + Firebase同步
+    function initCards() {
+      let html = "";
       for (let i = 1; i <= 30; i++) {
         const page = Math.ceil(i / 2);
-        const isFirstInPage = i % 2 === 1;
-        if (isFirstInPage) html += `<div class="page-number">第 ${page} 頁</div><div class="page">`;
+        if (i % 2 === 1) html += `<div class="page">`;
         html += `
           <div class="card">
             <h1>玩家登錄卡 - 玩家${i}</h1>
             <label for="nickname${i}">暱稱</label>
             <input type="text" id="nickname${i}" placeholder="輸入暱稱">
+
             <label for="attribute${i}">性別與當日屬性</label>
             <input type="text" id="attribute${i}" placeholder="例如：男/主動方 或 女/被動方">
+
             <h2>喜好的項目、玩法</h2>
             <textarea class="large" id="preferred${i}" placeholder="盡量詳細描述喜好的項目與玩法..."></textarea>
+
             <h2>禁忌的項目</h2>
             <textarea class="medium" id="taboo${i}" placeholder="列出禁忌的項目..."></textarea>
+
             <h2>想跟大家說什麼或是許願</h2>
             <textarea class="small" id="wish${i}" placeholder="分享訊息或許願..."></textarea>
           </div>`;
         if (i % 2 === 0 || i === 30) html += `</div>`;
       }
-      container.innerHTML = html;
-      function adjustTextareaHeight(textarea) {
-        textarea.style.height = 'auto';
-        textarea.style.height = textarea.scrollHeight + 'px';
-      }
+      document.body.insertAdjacentHTML("beforeend", html);
+
       const fields = ["nickname", "attribute", "preferred", "taboo", "wish"];
       for (let i = 1; i <= 30; i++) {
         fields.forEach(field => {
           const el = document.getElementById(`${field}${i}`);
           const ref = db.ref(`players/${i}/${field}`);
+
           el.addEventListener("input", e => {
             ref.set(e.target.value);
-            if (e.target.tagName === 'TEXTAREA') adjustTextareaHeight(e.target);
+            adjustHeight(e.target);
           });
+
           ref.on("value", snap => {
             const val = snap.val();
-            if (val !== null && val !== el.value && !el.matches(':focus')) {
+            if (val !== null && val !== el.value) {
               el.value = val;
-              if (el.tagName === 'TEXTAREA') adjustTextareaHeight(el);
+              adjustHeight(el);
             }
           });
-          if (el.tagName === 'TEXTAREA') adjustTextareaHeight(el);
+
+          adjustHeight(el);
         });
       }
-    });
+    }
+
+    function adjustHeight(el) {
+      if (el.tagName === "TEXTAREA") {
+        el.style.height = "auto";
+        el.style.height = el.scrollHeight + "px";
+      }
+    }
   </script>
 </body>
 </html>
