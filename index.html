@@ -162,12 +162,12 @@
       margin-bottom: 4px;
       font-size: 14px;
     }
-    
-    /* 🧩 頂部雙欄配置：精確垂直置中對齊 */
+
+    /* 🎯 關鍵修正：讓左右兩邊頂端對齊，右邊區塊向下推避開 label */
     .card-top-grid {
       display: flex;
       gap: 12px;
-      align-items: center; /* 左側欄與右側欄【整體垂直置中】 */
+      align-items: stretch;
     }
     .left-col {
       flex: 1.4;
@@ -175,25 +175,21 @@
       flex-direction: column;
     }
     .left-col label:first-child {
-      margin-top: 0; /* 消除第一個標題頂部間距，避免推擠偏下 */
+      margin-top: 0;
     }
 
     .right-col {
       flex: 1;
-      background: rgba(168, 0, 0, 0.05);
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px dashed rgba(168, 0, 0, 0.3);
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      justify-content: space-between; /* 三個按鈕高度平均平分 */
+      margin-top: 25px; /* 精準對齊左側暱稱輸入框頂端（避開 label 高度） */
       box-sizing: border-box;
-      justify-content: center;
-      align-self: center; /* 強制右側區塊與左側整體幾何中心點對齊 */
     }
+
     .btn-save, .btn-load, .btn-clear {
       width: 100%;
-      padding: 7px 0;
+      height: 32px; /* 固定高度，讓按鈕看起來更扎實且平衡 */
       border: none;
       border-radius: 4px;
       font-size: 12px;
@@ -343,7 +339,7 @@
                 <input type="text" id="attribute${i}" placeholder="例如：男/主動方 或 女/被動方">
               </div>
 
-              <!-- 右側：存取與清空按鈕區 (精確垂直置中對齊左側) -->
+              <!-- 右側：存取與清空按鈕區 (精準對齊兩輸入框高度) -->
               <div class="right-col">
                 <button class="btn-save" onclick="saveAccountData(${i})">💾 儲存卡片</button>
                 <button class="btn-load" onclick="loadAccountData(${i})">📂 載入存檔</button>
