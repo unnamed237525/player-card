@@ -161,36 +161,43 @@
       margin-top: 10px;
       font-size: 14px;
     }
+    label:first-child {
+      margin-top: 0;
+    }
     
-    /* 🧩 頂部雙欄配置：左側資訊 / 右側按鈕區 */
+    /* 🧩 頂部雙欄配置：精確對齊與適中寬度 */
     .card-top-grid {
       display: flex;
-      gap: 15px;
-      align-items: flex-start;
+      gap: 12px;
+      align-items: stretch; /* 確保左右高度完全一致 */
     }
     .left-col {
-      flex: 1.3;
+      flex: 1.5;
     }
     .right-col {
-      flex: 0.7;
+      flex: 1;
       background: rgba(168, 0, 0, 0.05);
-      padding: 10px 8px;
+      padding: 8px;
       border-radius: 6px;
       border: 1px dashed rgba(168, 0, 0, 0.3);
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      margin-top: 10px;
+      justify-content: space-between; /* 均勻拉開三個按鈕 */
+      box-sizing: border-box;
     }
     .btn-save, .btn-load, .btn-clear {
       width: 100%;
-      padding: 6px 0;
+      flex: 1;
+      margin: 2px 0;
       border: none;
       border-radius: 4px;
       font-size: 12px;
       font-weight: bold;
       cursor: pointer;
       color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: background 0.2s, transform 0.1s;
     }
     .btn-save {
@@ -331,7 +338,7 @@
                 <input type="text" id="attribute${i}" placeholder="例如：男/主動方 或 女/被動方">
               </div>
 
-              <!-- 右側：存取與清空按鈕區 -->
+              <!-- 右側：存取與清空按鈕區 (對齊左側整體高度) -->
               <div class="right-col">
                 <button class="btn-save" onclick="saveAccountData(${i})">💾 儲存卡片</button>
                 <button class="btn-load" onclick="loadAccountData(${i})">📂 載入存檔</button>
