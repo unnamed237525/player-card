@@ -174,20 +174,20 @@
     .right-col {
       flex: 0.7;
       background: rgba(168, 0, 0, 0.05);
-      padding: 12px 10px;
+      padding: 10px 8px;
       border-radius: 6px;
       border: 1px dashed rgba(168, 0, 0, 0.3);
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 6px;
       margin-top: 10px;
     }
-    .btn-save, .btn-load {
+    .btn-save, .btn-load, .btn-clear {
       width: 100%;
-      padding: 8px 0;
+      padding: 6px 0;
       border: none;
       border-radius: 4px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: bold;
       cursor: pointer;
       color: white;
@@ -205,7 +205,13 @@
     .btn-load:hover {
       background: #222;
     }
-    .btn-save:active, .btn-load:active {
+    .btn-clear {
+      background: #882222;
+    }
+    .btn-clear:hover {
+      background: #660000;
+    }
+    .btn-save:active, .btn-load:active, .btn-clear:active {
       transform: scale(0.98);
     }
 
@@ -258,7 +264,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
 
   <script>
-    const PASSWORD = "SL0307";
+    const PASSWORD = "8246";
     const SESSION_KEY = "player_access";
 
     const firebaseConfig = {
@@ -325,10 +331,11 @@
                 <input type="text" id="attribute${i}" placeholder="例如：男/主動方 或 女/被動方">
               </div>
 
-              <!-- 右側：存取按鈕區 -->
+              <!-- 右側：存取與清空按鈕區 -->
               <div class="right-col">
                 <button class="btn-save" onclick="saveAccountData(${i})">💾 儲存卡片</button>
                 <button class="btn-load" onclick="loadAccountData(${i})">📂 載入存檔</button>
+                <button class="btn-clear" onclick="clearCardData(${i})">🗑️ 清空欄位</button>
               </div>
             </div>
 
@@ -452,6 +459,29 @@
           }
         });
       });
+    }
+
+    // 🗑️ 【清空】彈出確認提示框
+    function clearCardData(index) {
+      const isConfirmed = confirm(`確定要清空「玩家${index}」卡片的所有內容嗎？`);
+      
+      // 使用者點擊「確定」
+      if (isConfirmed) {
+        const updates = {};
+        updates[`players/${index}/nickname`] = "";
+        updates[`players/${index}/attribute`] = "";
+        updates[`players/${index}/preferred`] = "";
+        updates[`players/${index}/taboo`] = "";
+        updates[`players/${index}/wish`] = "";
+
+        db.ref().update(updates, (error) => {
+          if (error) {
+            alert("清空失敗：" + error.message);
+          } else {
+            alert(`✅ 已成功清空「玩家${index}」卡片內容！`);
+          }
+        });
+      }
     }
   </script>
 </body>
