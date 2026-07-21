@@ -162,39 +162,36 @@
       font-size: 14px;
     }
     
-    /* 🧩 頂部雙欄配置：左側資訊 / 右側帳號存取 */
+    /* 🧩 頂部雙欄配置：左側資訊 / 右側按鈕區 */
     .card-top-grid {
       display: flex;
       gap: 15px;
+      align-items: flex-start;
     }
     .left-col {
-      flex: 1.2;
+      flex: 1.3;
     }
     .right-col {
-      flex: 0.8;
+      flex: 0.7;
       background: rgba(168, 0, 0, 0.05);
-      padding: 8px 10px;
+      padding: 12px 10px;
       border-radius: 6px;
       border: 1px dashed rgba(168, 0, 0, 0.3);
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
-    }
-    .account-actions {
-      display: flex;
-      gap: 6px;
+      gap: 10px;
       margin-top: 10px;
     }
     .btn-save, .btn-load {
-      flex: 1;
-      padding: 6px 0;
+      width: 100%;
+      padding: 8px 0;
       border: none;
       border-radius: 4px;
       font-size: 13px;
       font-weight: bold;
       cursor: pointer;
       color: white;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.1s;
     }
     .btn-save {
       background: #A80000;
@@ -208,8 +205,11 @@
     .btn-load:hover {
       background: #222;
     }
+    .btn-save:active, .btn-load:active {
+      transform: scale(0.98);
+    }
 
-    input[type="text"], input[type="password"], textarea {
+    input[type="text"], textarea {
       width: 100%;
       padding: 8px;
       border: 1px solid #A80000;
@@ -235,7 +235,7 @@
     @media print {
       body { background: white; padding: 10px; }
       .card { background: white; box-shadow: none; page-break-inside: avoid; }
-      .right-col { display: none; } /* 列印時隱藏控制區 */
+      .right-col { display: none; } /* 列印時隱藏存取按鈕 */
     }
   </style>
 </head>
@@ -258,7 +258,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
 
   <script>
-    const PASSWORD = "8246";
+    const PASSWORD = "SL0307";
     const SESSION_KEY = "player_access";
 
     const firebaseConfig = {
@@ -325,18 +325,10 @@
                 <input type="text" id="attribute${i}" placeholder="例如：男/主動方 或 女/被動方">
               </div>
 
-              <!-- 右側：帳號管理儲存區 -->
+              <!-- 右側：存取按鈕區 -->
               <div class="right-col">
-                <label for="acc_${i}">個人帳號</label>
-                <input type="text" id="acc_${i}" placeholder="自訂帳號">
-
-                <label for="pwd_${i}">個人密碼</label>
-                <input type="password" id="pwd_${i}" placeholder="自訂密碼">
-
-                <div class="account-actions">
-                  <button class="btn-save" onclick="saveAccountData(${i})">儲存</button>
-                  <button class="btn-load" onclick="loadAccountData(${i})">讀取</button>
-                </div>
+                <button class="btn-save" onclick="saveAccountData(${i})">💾 儲存卡片</button>
+                <button class="btn-load" onclick="loadAccountData(${i})">📂 載入存檔</button>
               </div>
             </div>
 
@@ -385,58 +377,51 @@
       }
     }
 
-    // 💾 【儲存】帳號資料 logic
+    // 💾 【儲存】彈出輸入框問帳號
     function saveAccountData(index) {
-      const acc = document.getElementById(`acc_${index}`).value.trim();
-      const pwd = document.getElementById(`pwd_${index}`).value.trim();
-
-      if (!acc || !pwd) {
-        alert("請填寫個人【帳號】與【密碼】後再儲存！");
+      const accInput = prompt("請輸入要儲存的個人帳號：");
+      
+      // 使用者點取消或沒填寫
+      if (accInput === null) return;
+      const acc = accInput.trim();
+      if (!acc) {
+        alert("帳號不能為空！");
         return;
       }
 
-      // 安全過濾 Key 格式 (移除 Firebase 不允許的符號)
+      // 濾除 Firebase 不允許的特殊符號
       const safeAccKey = acc.replace(/[.#$\[\]]/g, "_");
       const userRef = db.ref(`saved_accounts/${safeAccKey}`);
 
-      userRef.once("value", snap => {
-        const existingData = snap.val();
-        
-        // 如果帳號已存在，驗證密碼
-        if (existingData && existingData.password !== pwd) {
-          alert("❌ 儲存失敗：該帳號已被使用，且密碼不正確！");
-          return;
+      // 打包當前卡片 5 個欄位的內容
+      const cardData = {
+        nickname: document.getElementById(`nickname${index}`).value,
+        attribute: document.getElementById(`attribute${index}`).value,
+        preferred: document.getElementById(`preferred${index}`).value,
+        taboo: document.getElementById(`taboo${index}`).value,
+        wish: document.getElementById(`wish${index}`).value,
+        updatedAt: Date.now()
+      };
+
+      // 寫入/覆蓋至 Firebase 存檔區
+      userRef.set(cardData, (error) => {
+        if (error) {
+          alert("儲存失敗：" + error.message);
+        } else {
+          alert(`✅ 儲存成功！已將內容記憶至帳號：【${acc}】`);
         }
-
-        // 打包當前欄位資料
-        const cardData = {
-          password: pwd,
-          nickname: document.getElementById(`nickname${index}`).value,
-          attribute: document.getElementById(`attribute${index}`).value,
-          preferred: document.getElementById(`preferred${index}`).value,
-          taboo: document.getElementById(`taboo${index}`).value,
-          wish: document.getElementById(`wish${index}`).value,
-          updatedAt: Date.now()
-        };
-
-        // 寫入/覆蓋至 Firebase 資料庫存檔區
-        userRef.set(cardData, (error) => {
-          if (error) {
-            alert("儲存發生錯誤：" + error.message);
-          } else {
-            alert("✅ 儲存成功！內容已記憶至此帳號。");
-          }
-        });
       });
     }
 
-    // 📂 【讀取】帳號資料 logic (寫入即時資料庫，讓所有人同步看到)
+    // 📂 【讀取】彈出輸入框問帳號
     function loadAccountData(index) {
-      const acc = document.getElementById(`acc_${index}`).value.trim();
-      const pwd = document.getElementById(`pwd_${index}`).value.trim();
-
-      if (!acc || !pwd) {
-        alert("請填寫【帳號】與【密碼】以讀取存檔！");
+      const accInput = prompt("請輸入要讀取的個人帳號：");
+      
+      // 使用者點取消或沒填寫
+      if (accInput === null) return;
+      const acc = accInput.trim();
+      if (!acc) {
+        alert("帳號不能為空！");
         return;
       }
 
@@ -447,16 +432,11 @@
         const data = snap.val();
 
         if (!data) {
-          alert("❌ 找不到此帳號的存檔！");
+          alert(`❌ 讀取失敗：找不到帳號【${acc}】的存檔！`);
           return;
         }
 
-        if (data.password !== pwd) {
-          alert("❌ 密碼錯誤，無法讀取存檔！");
-          return;
-        }
-
-        // 驗證成功：同步寫入目前該卡片的 Realtime Database 節點，觸發全網即時更新
+        // 讀取成功：同步更新目前該位置卡片的 Realtime Database，發送給線上所有瀏覽者
         const updates = {};
         updates[`players/${index}/nickname`] = data.nickname || "";
         updates[`players/${index}/attribute`] = data.attribute || "";
@@ -468,7 +448,7 @@
           if (error) {
             alert("同步更新失敗：" + error.message);
           } else {
-            alert(`✅ 讀取成功！已將帳號【${acc}】的資料同步展示至「玩家${index}」卡片！`);
+            alert(`✅ 讀取成功！已將帳號【${acc}】的存檔帶入「玩家${index}」！`);
           }
         });
       });
