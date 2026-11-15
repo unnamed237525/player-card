@@ -272,7 +272,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-database-compat.js"></script>
 
   <script>
-    const PASSWORD = "CG0829";
+    const PASSWORD = "8246";
     const SESSION_KEY = "player_access";
 
     const firebaseConfig = {
@@ -335,8 +335,8 @@
                 <label for="nickname${i}">暱稱</label>
                 <input type="text" id="nickname${i}" placeholder="輸入暱稱">
 
-                <label for="attribute${i}">性別與當日屬性</label>
-                <input type="text" id="attribute${i}" placeholder="例如：男/主動方 或 女/被動方">
+                <label for="attribute${i}">性別</label>
+                <input type="text" id="attribute${i}" placeholder="例如：男/女/">
               </div>
 
               <!-- 右側：存取與清空按鈕區 (精準對齊兩輸入框高度) -->
@@ -347,11 +347,11 @@
               </div>
             </div>
 
-            <h2>喜好的項目、玩法</h2>
-            <textarea class="large" id="preferred${i}" placeholder="盡量詳細描述喜好的項目與玩法..."></textarea>
+            <h2>喜好的遊戲、類別</h2>
+            <textarea class="large" id="preferred${i}" placeholder="盡量喜好的遊戲與類別..."></textarea>
 
-            <h2>禁忌的項目</h2>
-            <textarea class="medium" id="taboo${i}" placeholder="列出禁忌的項目..."></textarea>
+            <h2>個人雷點</h2>
+            <textarea class="medium" id="taboo${i}" placeholder="列出個人雷點..."></textarea>
 
             <h2>想跟大家說什麼或是許願</h2>
             <textarea class="small" id="wish${i}" placeholder="分享訊息或許願..."></textarea>
